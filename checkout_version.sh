@@ -20,17 +20,22 @@ if [ "$target_pkg" = "none" ]
 then
 	echo "\nInput the right path in dir custom!\n"
 else
-	for file in `ls ./$target_pkg`
-	do
-		if [ -d "./$1/$file" ]
-		then
-			e_out_put="$e_out_put ${file##*$target_pkg}"
-			if [ "${file##*$target_pkg}" = "$2" ]
+	if [ "$2" = "clean" ]
+	then
+		target="clean"
+	else
+		for file in `ls ./$target_pkg`
+		do
+			if [ -d "./$1/$file" ]
 			then
-				target="/usr/local/custom/$1/$file"
+				e_out_put="$e_out_put ${file##*$target_pkg}"
+				if [ "${file##*$target_pkg}" = "$2" ]
+				then
+					target="/usr/local/custom/$1/$file"
+				fi
 			fi
-		fi
-	done
+		done
+	fi
 fi
 if [ "$target" = "none" ]
 then
@@ -73,40 +78,45 @@ else
 			done
 		fi
 	done
-	echo "\nNow link the requied version file.\n"	
+	if [ $target = "clean" ]
+	then
+		echo "clean finished."
+	else
+		echo "\nNow link the requied version file.\n"	
 
-	for file in `ls $target`
-	do
-		if [ -d "$target/$file" ]
-		then
-			for file_d in `ls $target/$file`
-			do
-				if [ $file_d = "cmake" ]
-				then
-					for file_e in `ls $target/$file/cmake`
-					do
-						echo "link $target/$file/cmake/$file_e to /usr/local/$file/cmake/$file_e"
-						sudo ln -s $target/$file/cmake/$file_e  /usr/local/$file/cmake/$file_e
-					done
-				elif [ $file_d = "pkgconfig" ]
-				then
-					for file_e in `ls $target/$file/pkgconfig`
-					do
-						echo "link $target/$file/cmake/$file_e to /usr/local/$file/pkgconfig/$file_e"
-						sudo ln -s $target/$file/pkgconfig/$file_e  /usr/local/$file/pkgconfig/$file_e
-					done
-				else
-					if [ -d "$target/$file/$file_d" ]
+		for file in `ls $target`
+		do
+			if [ -d "$target/$file" ]
+			then
+				for file_d in `ls $target/$file`
+				do
+					if [ $file_d = "cmake" ]
 					then
-						echo "link $target/$file/$file_d to /usr/local/$file/$file_d"
-						sudo ln -s $target/$file/$file_d /usr/local/$file/$file_d
+						for file_e in `ls $target/$file/cmake`
+						do
+							echo "link $target/$file/cmake/$file_e to /usr/local/$file/cmake/$file_e"
+							sudo ln -s $target/$file/cmake/$file_e  /usr/local/$file/cmake/$file_e
+						done
+					elif [ $file_d = "pkgconfig" ]
+					then
+						for file_e in `ls $target/$file/pkgconfig`
+						do
+							echo "link $target/$file/cmake/$file_e to /usr/local/$file/pkgconfig/$file_e"
+							sudo ln -s $target/$file/pkgconfig/$file_e  /usr/local/$file/pkgconfig/$file_e
+						done
 					else
-						echo "link $target/$file/$file_d to /usr/local/$file/$file_d"
-						sudo ln -s $target/$file/$file_d /usr/local/$file/$file_d
+						if [ -d "$target/$file/$file_d" ]
+						then
+							echo "link $target/$file/$file_d to /usr/local/$file/$file_d"
+							sudo ln -s $target/$file/$file_d /usr/local/$file/$file_d
+						else
+							echo "link $target/$file/$file_d to /usr/local/$file/$file_d"
+							sudo ln -s $target/$file/$file_d /usr/local/$file/$file_d
+						fi
 					fi
-				fi
-			done
-		fi
-	done
+				done
+			fi
+		done
+	fi
 fi
 
